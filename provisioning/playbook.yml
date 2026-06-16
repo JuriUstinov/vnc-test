@@ -2,9 +2,9 @@
   hosts: home
   become: yes
   vars:
-    vnc_user: "ubuntu"             # Der Benutzer, unter dem die GUI laufen soll
+    vnc_user: "root"             # Der Benutzer, unter dem die GUI laufen soll
     vnc_password: "cyberrange"     # Das VNC-Zugriffspasswort
-    vnc_user_home: "/home/{{ vnc_user }}"
+    vnc_user_home: "/root"
 
   tasks:
     - name: 1. Installiere XFCE4, Xorg und TigerVNC
