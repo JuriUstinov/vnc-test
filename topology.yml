@@ -15,7 +15,7 @@ hosts:
     base_box:
       image: kali-linux-2026.1
       mgmt_user: kali-mgmt
-    flavor: standard.large
+    flavor: standard.small
 
 routers:
   #- name: server-router
