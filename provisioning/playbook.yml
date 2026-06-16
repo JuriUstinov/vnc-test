@@ -1,0 +1,66 @@
+- name: Standard VNC und XFCE4 GUI konfigurieren
+  hosts: home
+  become: yes
+  vars:
+    vnc_user: "ubuntu"             # Der Benutzer, unter dem die GUI laufen soll
+    vnc_password: "cyberrange"     # Das VNC-Zugriffspasswort
+    vnc_user_home: "/home/{{ vnc_user }}"
+
+  tasks:
+    - name: 1. Installiere XFCE4, Xorg und TigerVNC
+      apt:
+        name:
+          - xfce4
+          - xfce4-goodies
+          - xorg
+          - dbus-x11
+          - tigervnc-standalone-server
+        state: present
+        update_cache: yes
+
+    - name: 2. Erstelle das .vnc Verzeichnis für den User
+      file:
+        path: "{{ vnc_user_home }}/.vnc"
+        state: directory
+        owner: "{{ vnc_user }}"
+        group: "{{ vnc_user }}"
+        mode: '0700'
+
+    - name: 3. Setze das VNC-Passwort verschlüsselt im User-Verzeichnis
+      shell: "echo {{ vnc_password }} | vncpasswd -f > {{ vnc_user_home }}/.vnc/passwd"
+      args:
+        creates: "{{ vnc_user_home }}/.vnc/passwd"
+
+    - name: 4. Berechtigung für VNC-Passwortdatei anpassen
+      file:
+        path: "{{ vnc_user_home }}/.vnc/passwd"
+        owner: "{{ vnc_user }}"
+        group: "{{ vnc_user }}"
+        mode: '0600'
+
+    - name: 5. Erstelle die xstartup Datei (Startet XFCE)
+      copy:
+        dest: "{{ vnc_user_home }}/.vnc/xstartup"
+        owner: "{{ vnc_user }}"
+        group: "{{ vnc_user }}"
+        mode: '0755'
+        content: |
+          #!/bin/sh
+          unset SESSION_MANAGER
+          unset DBUS_SESSION_BUS_ADDRESS
+          exec startxfce4
+
+    - name: 6. Erstelle die VNC-Konfigurationsdatei
+      copy:
+        dest: "{{ vnc_user_home }}/.vnc/config"
+        owner: "{{ vnc_user }}"
+        group: "{{ vnc_user }}"
+        mode: '0644'
+        content: |
+          localhost=1
+          geometry=1920x1080
+          depth=24
+
+    - name: 7. VNC-Server für Display :1 (Port 5901) manuell starten/neustarten
+      shell: "vncserver -kill :1 || true && vncserver :1"
+      become_user: "{{ vnc_user }}"
