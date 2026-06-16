@@ -3,7 +3,7 @@ hosts:
   #- name: server
     #base_box:
       #image: debian-12-x86_64
-      #mgmt_user: kali-mgmt
+      #mgmt_user: debian
     #flavor: standard.small
     #hidden: True
     #volumes:
@@ -14,7 +14,7 @@ hosts:
   - name: home
     base_box:
       image: kali-linux-2026.1
-      mgmt_user: kali-mgmt
+      mgmt_user: debian
     flavor: m1.large
 
 routers:
